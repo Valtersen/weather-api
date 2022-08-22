@@ -52,6 +52,14 @@ class WeatherView(APIView):
 class SubscriptionView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
+    def create_or_update_sub(self, city, user, period_data, active, period_options=(3, 6, 12, 18, 24)):
+        period = min(period_options, key=lambda x:abs(x-period_data))
+        sub, created = Subscription.objects.update_or_create(user=user, city=city,
+                                                             defaults={
+                                                                 'period': period,
+                                                                 'active': active})
+        return sub
+
     def get(self, request):
         subscriptions = Subscription.objects.filter(user=request.user).values(
             'user__username', 'city__name', 'city__id', 'period', 'active')
@@ -63,17 +71,10 @@ class SubscriptionView(generics.GenericAPIView):
         period_data = request.data.get('period', 60)
         active = request.data.get('active', True)
 
-        def create_or_update_sub(city, user, period, active):
-            sub, created = Subscription.objects.update_or_create(user=user, city=city,
-                                                                 defaults={
-                                                                     'period': period,
-                                                                     'active': active})
-            return sub
-
         # if user provides city id
         if request.data.get('id', None):
             city = City.objects.get(id=request.data['id'])
-            subscription = create_or_update_sub(city, request.user, period_data, active)
+            subscription = self.create_or_update_sub(city, request.user, period_data, active)
             subscription.save()
             return Response(model_to_dict(subscription), status=status.HTTP_201_CREATED)
 
@@ -87,7 +88,7 @@ class SubscriptionView(generics.GenericAPIView):
                 return Response(city_dict)
             else:
                 city_obj = city.first()
-                subscription = create_or_update_sub(city_obj, request.user, period_data, active)
+                subscription = self.create_or_update_sub(city_obj, request.user, period_data, active)
                 subscription.save()
                 return Response(model_to_dict(subscription), status=status.HTTP_201_CREATED)
 
@@ -105,7 +106,7 @@ class SubscriptionView(generics.GenericAPIView):
                         'lat').all())
             else:
                 city_obj = city.first()
-                subscription = create_or_update_sub(city_obj, request.user, period_data, active)
+                subscription = self.create_or_update_sub(city_obj, request.user, period_data, active)
                 subscription.save()
                 return Response(model_to_dict(subscription), status=status.HTTP_201_CREATED)
         return Response('City not found', status=status.HTTP_404_NOT_FOUND)

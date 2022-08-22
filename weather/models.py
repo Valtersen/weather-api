@@ -25,7 +25,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='subscribed')
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='user_subscribed')
-    period = models.IntegerField(blank=False)
+    period = models.IntegerField(blank=False, verbose_name='period, hours')
     active = models.BooleanField()
 
     def __str__(self):
