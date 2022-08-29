@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'weather',
     'rest_framework',
+    'elasticemailbackend',
 ]
 
 
@@ -169,9 +170,8 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 
 CELERY_BEAT_SCHEDULE = {
-    "sample_task": {
-        "task": "weather.tasks.sample_task",
-        # "schedule": crontab(hour="*/3"),
-        "schedule": crontab(minute="*/1"),
+    "weather_task": {
+        "task": "weather.tasks.weather_task",
+        "schedule": crontab(minute=0, hour='*/3'),
     },
 }

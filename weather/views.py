@@ -12,12 +12,6 @@ from django.core.mail import send_mail
 from .scripts import *
 
 
-class IndexView(APIView):
-
-    def get(self, request):
-        return Response('Homepage')
-
-
 class RegistrationView(generics.GenericAPIView):
     serializer_class = RegistrationSerializer
 
@@ -61,7 +55,7 @@ class WeatherView(APIView):
 class SubscriptionView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
-    def create_or_update_sub(self, city, user, period_data, active, period_options=(3, 6, 12, 18, 24)):
+    def create_or_update_sub(self, city, user, period_data, active, period_options=(3, 6, 12, 24)):
         period = min(period_options, key=lambda x:abs(x-period_data))
         sub, created = Subscription.objects.update_or_create(user=user, city=city,
                                                              defaults={

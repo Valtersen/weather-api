@@ -1,3 +1,5 @@
+import json
+
 from .serializers import *
 from datetime import datetime
 from the_weather.settings import BASE_DIR
