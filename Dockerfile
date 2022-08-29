@@ -1,5 +1,13 @@
 FROM python:3
-ENV PYTHONUNBUFFERED=1
-WORKDIR /dj
-COPY requirements.txt /dj/
+
+WORKDIR /usr/src/app
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+
+COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install -r requirements.txt
+
+COPY . /usr/src/app/
+

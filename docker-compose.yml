@@ -1,11 +1,36 @@
-version: "3.9"
+version: '3.9'
+
 services:
   app:
     build: .
     volumes:
-      - .:/dj
+      - .:/usr/src/app/
     ports:
       - 8000:8000
     image: weather:django
     container_name: django_container
     command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+    depends_on:
+      - redis
+  redis:
+    image: redis:alpine
+  celery:
+    build: .
+    command: celery -A the_weather worker -l info
+    volumes:
+      - .:/usr/src/app/
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+    depends_on:
+      - redis
+  celery-beat:
+    build: .
+    command: celery -A the_weather beat -l info
+    volumes:
+      - .:/usr/src/app/
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+    depends_on:
+      - redis

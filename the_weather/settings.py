@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 import os
+import weather.tasks
 
 
 load_dotenv()
@@ -154,4 +157,21 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
 }
 
+ELASTICEMAIL_API_KEY = os.environ.get('ELASTICEMAIL_API_KEY', '')
 
+EMAIL_BACKEND = "elasticemailbackend.backend.ElasticEmailBackend"
+
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
+
+
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
+
+
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "weather.tasks.sample_task",
+        # "schedule": crontab(hour="*/3"),
+        "schedule": crontab(minute="*/1"),
+    },
+}
