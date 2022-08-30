@@ -14,7 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from drf_yasg import openapi
+from drf_yasg.openapi import Contact
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from rest_framework.documentation import include_docs_urls
+
 from weather import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -22,16 +28,28 @@ from rest_framework_simplejwt.views import (
 )
 
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title='Weather Api',
+        default_version='v1',
+        description='api to get weather in subscribed city sent to mail.',
+        terms_of_service='https://www.google.com/policies/terms/',
+        contact=Contact(email='valentina.labza@gmail.com'),
+        license=openapi.License(name='MIT Licnse')
+    ),
+    public = True,
+    permission_classes = [permissions.AllowAny],
+)
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('', views.index, name='index'),  # TEMP
-    # path('city/', views.city, name='city'),  # TEMP
-    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/weather/', views.WeatherView.as_view(), name='weather'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/register/', views.RegistrationView.as_view(), name='registration'),
     path('api/subscription/', views.SubscriptionView.as_view(), name='subscriptions'),
     path('api/city/', views.CityView.as_view(), name='cities'),
+    path('apidocs/', include_docs_urls(title='Weather API')),
 ]
 

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'weather',
     'rest_framework',
     'elasticemailbackend',
+    'coreapi',
+    'drf_yasg',
 ]
 
 
@@ -152,6 +154,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 SIMPLE_JWT = {

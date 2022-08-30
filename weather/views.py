@@ -1,10 +1,14 @@
 import json
+
+import coreschema
 import requests
-from django.conf.global_settings import DEFAULT_FROM_EMAIL
+# from django.conf.global_settings import DEFAULT_FROM_EMAIL
 from django.forms.models import model_to_dict
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from the_weather.settings import OPENWEATHERMAP_URL, OPENWEATHERMAP_PARAMS
+from rest_framework.schemas import AutoSchema
+
+from the_weather.settings import OPENWEATHERMAP_URL, OPENWEATHERMAP_PARAMS, DEFAULT_FROM_EMAIL
 from weather.models import *
 from rest_framework.views import APIView
 from rest_framework import generics, status
@@ -13,6 +17,9 @@ from .scripts import *
 
 
 class RegistrationView(generics.GenericAPIView):
+    """
+    Register new user
+    """
     serializer_class = RegistrationSerializer
 
     def post(self, request):
@@ -28,6 +35,9 @@ class RegistrationView(generics.GenericAPIView):
 
 
 class WeatherView(APIView):
+    """
+    View all subscribed city weather
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -53,7 +63,16 @@ class WeatherView(APIView):
 
 
 class SubscriptionView(generics.GenericAPIView):
+    """
+    post:Subscribe or change your subscription. Parameters:
+    period - 3, 6, 12, 24 - how often you receive mail with weather; active - True or False;
+    city - can be specified with 'city' - city name, 'id' - city id, 'city'&'country' city and country names.
+    If multiple cities fit the specification they will be returned.
+    get:View all subscriptions.
+    """
+
     permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
 
     def create_or_update_sub(self, city, user, period_data, active, period_options=(3, 6, 12, 24)):
         period = min(period_options, key=lambda x:abs(x-period_data))
@@ -125,6 +144,9 @@ class SubscriptionView(generics.GenericAPIView):
 
 
 class CityView(APIView):
+    """
+    View all cities, with filters: 'id' - city id; 'city' - city name; 'country' - country name; 'city'&'country'
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
